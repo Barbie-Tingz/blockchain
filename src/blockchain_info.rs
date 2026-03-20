@@ -2,6 +2,8 @@ use serde::de::DeserializeOwned;
 use crate::account_info::RPCResponse as AccountInfo;
 use crate::epoch_info::RPCResponse as EpochInfoResponse;
 use crate::recent_performance_samples::RPCResponse as RecentPerfomance;
+use crate::transaction::RPCResponse as Transaction; 
+use crate::signatures_for_address::RPCResponse as SignaturesForAddress; 
 
 const HOST_ROOT: &str = "https://api.mainnet-beta.solana.com";
 
@@ -37,7 +39,7 @@ pub async fn account_info(
 
 // does not need a pub key because it is a global and doesnt need a wallet address
 pub async fn epoch_info(
-    client:&reqwest::Client,  
+    client:&reqwest::Client  
 ) -> Result<EpochInfoResponse, reqwest::Error> {
     let body = serde_json::json!({
         "jsonrpc": "2.0", 
@@ -50,8 +52,8 @@ pub async fn epoch_info(
 }
 
 pub async fn recent_performance_samples(
-client:&reqwest::Client, 
-limit: Option<u64>, 
+    client:&reqwest::Client, 
+    limit: Option<u64> 
 ) -> Result<RecentPerfomance, reqwest::Error> {
     let body = serde_json::json!({
         "jsonrpc": "2.0", 
@@ -60,5 +62,36 @@ limit: Option<u64>,
         "params": [limit],
     }); 
 
-    send_request(client, body).await // sends it and returns the result 
+    send_request(client, body).await 
 }
+
+
+pub async fn transaction(
+    client: &reqwest::Client, 
+    signature:&str 
+) -> Result<Transaction, reqwest::Error> {
+    let body = serde_json::json!({
+        "jsonrpc": "2.0", 
+        "id": 1,
+        "method": "getTransaction",
+        "params": [signature],
+    });
+
+    send_request(client, body).await 
+}
+
+
+pub async fn signatures_for_address(
+    client: &reqwest::Client, 
+    pubkey: &str
+) -> Result<SignaturesForAddress, reqwest::Error> {
+    let body = serde_json::json!({
+        "jsonrpc": "2.0", 
+        "id": 1, 
+        "method": "getSignaturesForAddress", 
+        "params":[pubkey],
+    });
+
+    send_request(client, body).await
+}
+
