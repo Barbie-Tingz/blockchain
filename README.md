@@ -43,6 +43,10 @@ cargo run
 - **Shared `reqwest::Client`** — created once in `main` and passed by reference to reuse the connection pool
 - **`Option<T>`** — used throughout because Solana returns `null` for many fields on unconfirmed or empty accounts
 
+## About the Developer
+
+Jillian is a Rust and Solana developer with a background in networking and network security, including firewalls and infrastructure. She is building on-chain tooling to deepen her understanding of the Solana blockchain at a systems level — combining low-level network knowledge with modern async Rust to parse and interact with live blockchain data.
+
 ## Dependencies
 
 - `reqwest` — async HTTP client
