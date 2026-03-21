@@ -4,6 +4,8 @@ mod recent_performance_samples;
 mod blockchain_info;
 mod transaction; 
 mod signatures_for_address; 
+mod handlers; 
+use axum::{routing::get, Router}; 
 
 #[tokio::main]
 async fn main() {
@@ -11,6 +13,9 @@ async fn main() {
 
     let wallet = dotenv::var("WALLET").expect("Cannot find WALLET"); // This reads you .env file 
     let client = reqwest::Client::new(); // creates the shared client 
+
+    let app = Router::new()
+        .route("/", get(account_info)); 
     
     match blockchain_info::account_info(&client, &wallet).await {
         Ok(response) => println!("{:#?}", response), // matching on response
