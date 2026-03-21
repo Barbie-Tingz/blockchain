@@ -27,6 +27,8 @@ async fn main() {
         Err(e) => eprintln!("Error: {}", e),
     }
 
+    // this match block is nested signature_for_address and transaction. We need to obtain the signature before we can 
+    // complete a transaction. It is cleaner than creating a seperate match block. 
     match blockchain_info::signatures_for_address(&client, &wallet).await {
         Ok(response) => {
             if let Some(first) = response.result.first() { //.first grabs the first item; Returns Option<&Signature> because it be empty
@@ -40,3 +42,4 @@ async fn main() {
         Err(e) => println!("Error: {}", e), 
     }
 }
+

@@ -36,7 +36,7 @@ pub struct Meta {
 #[derive(Debug, Deserialize, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct Loaded {
-    pub read_only: Vec<String>, 
+    pub readonly: Vec<String>, 
     pub writable: Vec<String>, 
 }
 
