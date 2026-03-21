@@ -26,10 +26,10 @@ pub struct Context {
 #[derive(Debug, Deserialize, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct AccountValue {
-    pub data: Vec<String>,    // [base64_encoded_data, "base64"]
+    pub data: serde_json::Value,    // [base64_encoded_data, "base64"]
     pub executable: bool,     // true if this account is a program (smart contract)
     pub lamports: u64,        // balance in lamports (1 SOL = 1,000,000,000 lamports)
     pub owner: String,        // which program owns/controls this account
     pub rent_epoch: u64,
-    pub space: u64,
+    pub space: Option<u64>,
 }

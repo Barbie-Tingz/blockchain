@@ -14,13 +14,13 @@ pub struct Transaction {
     pub block_time: Option<i64>, 
     pub meta: Meta,
     pub slot: i64, 
-    pub transaction: Vec<String>,
+    pub transaction: Option<serde_json::Value>,
 }
 
 #[derive(Debug, Deserialize, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct Meta { 
-    pub err: Option<String>, 
+    pub err: Option<serde_json::Value>, 
     pub fee: i64, 
     pub inner_instructions: Vec<Vec<String>>,
     pub loaded_addresses: Loaded,
@@ -30,7 +30,7 @@ pub struct Meta {
     pub pre_balances: Vec<i64>, 
     pub pre_token_balances: Vec<PreToken>,
     pub rewards: Vec<String>, 
-    pub status: Status,
+    pub status: Option<serde_json::Value>,
 }
 
 #[derive(Debug, Deserialize, Serialize)]
@@ -76,10 +76,4 @@ pub struct PreAmount {
     pub decimals: i64, 
     pub ui_amount: Option<f64>, 
     pub ui_amount_string: String,
-}
-
-#[derive(Debug, Deserialize, Serialize)]
-#[serde(rename_all = "camelCase")]
-pub struct Status {
-    pub ok: Vec<String>
 }
