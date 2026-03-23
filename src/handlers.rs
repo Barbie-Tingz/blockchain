@@ -35,6 +35,8 @@ pub async fn recent_performance_samples(State(state): State<Arc<AppState>>) -> i
     }
 }
 
+// this match block is nested signature_for_address and transaction. We need to obtain the signature before we can 
+// complete a transaction. It is cleaner than creating a seperate match block. 
 pub async fn signatures_for_address(State(state): State<Arc<AppState>>) -> impl IntoResponse {
     match blockchain_info::signatures_for_address(&state.client, &state.wallet).await {
         Ok(response) => {

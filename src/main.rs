@@ -6,6 +6,7 @@ mod transaction;
 mod signatures_for_address; 
 mod handlers; 
 use axum::{routing::get, Router}; 
+use std::sync::Arc; 
 
 #[tokio::main]
 async fn main() {
@@ -13,38 +14,18 @@ async fn main() {
 
     let wallet = dotenv::var("WALLET").expect("Cannot find WALLET"); // This reads you .env file 
     let client = reqwest::Client::new(); // creates the shared client 
+    let state = Arc::new(handlers::AppState { client, wallet });
 
-    let app = Router::new()
-        .route("/", get(account_info)); 
+    let app = Router::new().route("/account_info", get(handlers::account_info))
+    .route("/epoch_info", get(handlers::epoch_info))
+    .route("/recent_performance_samples", get(handlers::recent_performance_samples))
+    .route("/signatures_for_address", get(handlers::signatures_for_address))
+    .with_state(state);
     
-    match blockchain_info::account_info(&client, &wallet).await {
-        Ok(response) => println!("{:#?}", response), // matching on response
-        Err(e) => eprintln!("Error: {}", e), // eprintln! prints to standard error output 
-    }
+    let listener = tokio::net::TcpListener::bind("0.0.0.0:3000").await.unwrap();
+    axum::serve(listener, app).await.unwrap(); 
 
-    match blockchain_info::epoch_info(&client).await { 
-        Ok(response) => println!("{:#?}", response), 
-        Err(e) => eprintln!("Error: {}", e),
-    }
+    
 
-    match blockchain_info::recent_performance_samples(&client, Some(3)).await { // Some(3) gives 3 samples 
-        Ok(response) => println!("{:#?}", response), 
-        Err(e) => eprintln!("Error: {}", e),
-    }
-
-    // this match block is nested signature_for_address and transaction. We need to obtain the signature before we can 
-    // complete a transaction. It is cleaner than creating a seperate match block. 
-    match blockchain_info::signatures_for_address(&client, &wallet).await {
-        Ok(response) => {
-            if let Some(first) = response.result.first() { //.first grabs the first item; Returns Option<&Signature> because it be empty
-                // Some(first) checks if the block is not empty and then unwraps it. If empty it skips the block. 
-                match blockchain_info::transaction(&client, &first.signature).await {
-                    Ok(tx) => println!("{:#?}", tx), 
-                    Err(e) => eprintln!("Error fetching transaction: {}", e),
-                }
-            }
-        }
-        Err(e) => println!("Error: {}", e), 
-    }
 }
 
