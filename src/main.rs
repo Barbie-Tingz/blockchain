@@ -7,6 +7,7 @@ mod signatures_for_address;
 mod handlers; 
 use axum::{routing::get, Router}; 
 use std::sync::Arc; 
+use tower_http::services::ServeDir;
 
 #[tokio::main]
 async fn main() {
@@ -16,10 +17,12 @@ async fn main() {
     let client = reqwest::Client::new(); // creates the shared client 
     let state = Arc::new(handlers::AppState { client, wallet });
 
-    let app = Router::new().route("/account_info", get(handlers::account_info))
+    let app = Router::new()
+    .route("/account_info", get(handlers::account_info))
     .route("/epoch_info", get(handlers::epoch_info))
     .route("/recent_performance_samples", get(handlers::recent_performance_samples))
     .route("/signatures_for_address", get(handlers::signatures_for_address))
+    .nest_service("/", ServeDir::new("static"))
     .with_state(state);
     
     let listener = tokio::net::TcpListener::bind("0.0.0.0:3000").await.unwrap();
