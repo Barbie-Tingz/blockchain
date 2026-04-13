@@ -4,12 +4,28 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Solana Dashboard</title>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
     <h1>Solana Dashboard</h1>
 
     <h2>Account Information</h2>
-    <div id="account_info">Loading...</div>
+    <div id="account_info">
+        <div class="card_container">
+            <div class="card">
+                <div id="balance">Balance</div>
+            </div>
+            <div class="card">
+                <div id="owner">Owner</div>
+            </div>
+            <div class="card">
+                <div id="executable">Reg Wallet</div>
+            </div>
+            <div class="card">
+                <div id="slot">Slot</div>
+            </div>
+        </div>
+    </div>
 
     <h2>Epoch Information</h2>
     <div id="epoch_info">Loading...</div>
@@ -24,25 +40,32 @@
         fetch('/account_info') // sends the GET request to the Aum server
             .then(res => res.json()) // response with raw json and converts to js object 
             .then(data => { // sets the text content of that dic to the formatted JSON
-                document.getElementById('account_info').innerText = JSON.stringify(data, null, 2) // pretty print
-            });
+                document.getElementById('balance').innerText = data.result.value.lamports /1e9+ 'SOL'
+                document.getElementById('owner').innerText = data.result.value.owner
+                document.getElementById('executable').innerText = data.result.value.executable
+                document.getElementById('slot').innerText = data.result.context.slot
+            })
+                .catch(err => {'Error: ' + err.message });
         
         fetch('/epoch_info')
             .then(res => res.json())
             .then(data => {
                 document.getElementById('epoch_info').innerText = JSON.stringify(data, null, 2)
+            .catch(err => {"Not showing data..."})
             });
         
         fetch('/recent_performance_samples')
             .then(res => res.json())
             .then(data => {
                 document.getElementById('performance').innerText = JSON.stringify(data, null, 2)
+            .catch(err => {"Not showing data..."})            
             });
 
         fetch('/signatures_for_address')
             .then(res =>res.json())
             .then(data => {
                 document.getElementById('transaction').innerText = JSON.stringify(data, null, 2)
+            .catch(err => {"Not showing data..."})
             }); 
     </script>
 
