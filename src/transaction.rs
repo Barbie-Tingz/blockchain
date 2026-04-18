@@ -22,14 +22,14 @@ pub struct Transaction {
 pub struct Meta { 
     pub err: Option<serde_json::Value>, 
     pub fee: i64, 
-    pub inner_instructions: Vec<Vec<String>>,
+    pub inner_instructions: Vec<serde_json::Value>,
     pub loaded_addresses: Loaded,
     pub log_messages: Vec<String>, 
     pub post_balances: Vec<i64>, 
     pub post_token_balances: Vec<PostToken>,
     pub pre_balances: Vec<i64>, 
     pub pre_token_balances: Vec<PreToken>,
-    pub rewards: Vec<String>, 
+    pub rewards: Vec<serde_json::Value>, 
     pub status: Option<serde_json::Value>,
 }
 

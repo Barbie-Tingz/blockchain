@@ -5,68 +5,148 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Solana Dashboard</title>
     <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
 </head>
-<body>
+<body class="p-4">
+
     <h1>Solana Dashboard</h1>
 
-    <h2>Account Information</h2>
-    <div id="account_info">
-        <div class="card_container">
-            <div class="card">
-                <div id="balance">Balance</div>
-            </div>
-            <div class="card">
-                <div id="owner">Owner</div>
-            </div>
-            <div class="card">
-                <div id="executable">Reg Wallet</div>
-            </div>
-            <div class="card">
-                <div id="slot">Slot</div>
-            </div>
+    <h2 class="mt-4">Account Information</h2>
+    <div class="d-flex gap-3">
+        <div class="card p-3">
+            <div class="text-muted small">Balance</div>
+            <div id="balance" class="fs-5 fw-bold">--</div>
+        </div>
+        <div class="card p-3">
+            <div class="text-muted small">Slot</div>
+            <div id="slot" class="fs-5 fw-bold">--</div>
+        </div>
+        <div class="card p-3">
+            <div class="text-muted small">Executable</div>
+            <div id="executable" class="fs-5 fw-bold">--</div>
+        </div>
+        <div class="card p-3">
+            <div class="text-muted small">Owner</div>
+            <div id="owner" class="fs-6 fw-bold">--</div>
         </div>
     </div>
 
-    <h2>Epoch Information</h2>
-    <div id="epoch_info">Loading...</div>
+    <h2 class="mt-4">Epoch Information</h2>
+    <div class="d-flex gap-3 mb-3">
+        <div class="card p-3">
+            <div class="text-muted small">Epoch</div>
+            <div id="epoch" class="fs-5 fw-bold">--</div>
+        </div>
+        <div class="card p-3">
+            <div class="text-muted small">Absolute Slot</div>
+            <div id="absolute_slot" class="fs-5 fw-bold">--</div>
+        </div>
+        <div class="card p-3">
+            <div class="text-muted small">Block Height</div>
+            <div id="block_height" class="fs-5 fw-bold">--</div>
+        </div>
+        <div class="card p-3">
+            <div class="text-muted small">Transaction Count</div>
+            <div id="transaction_count" class="fs-5 fw-bold">--</div>
+        </div>
+    </div>
 
-    <h2>Performance Statistics</h2>
-    <div id="performance">Loading...</div>
+    <!-- Epoch Progress -->
+    <div class="card p-3" style="max-width: 500px;">
+        <div class="text-muted small mb-2">Epoch Progress (<span id="slot_index">--</span> / <span id="slots_in_epoch">--</span> slots)</div>
+        <div class="progress">
+            <div id="epoch_progress" class="progress-bar" style="width: 0%"></div>
+        </div>
+    </div>
 
-    <h2>Transaction</h2>
-    <div id="transaction">Loading...</div>
+
+    <h2 class="mt-4">Performance Samples</h2>
+    <table class="table table-striped table-bordered">
+        <thead>
+            <tr>
+                <th>Slot</th>
+                <th>Transactions</th>
+                <th>Non-Vote Transactions</th>
+                <th>Num Slots</th>
+                <th>Sample Period (s)</th>
+            </tr>
+        </thead>
+        <tbody id="performance">
+            <tr><td colspan="5">Loading...</td></tr>
+        </tbody>
+    </table>
+
+
+    <h2 class="mt-4">Recent Transactions</h2>
+    <div id="tx_feed">
+        <div class="text-muted">Loading...</div>
+    </div>
 
     <script>
         fetch('/account_info') // sends the GET request to the Aum server
             .then(res => res.json()) // response with raw json and converts to js object 
             .then(data => { // sets the text content of that dic to the formatted JSON
-                document.getElementById('balance').innerText = data.result.value.lamports /1e9+ 'SOL'
-                document.getElementById('owner').innerText = data.result.value.owner
-                document.getElementById('executable').innerText = data.result.value.executable
-                document.getElementById('slot').innerText = data.result.context.slot
+                document.getElementById('balance').innerText = (data.result.value.lamports /1e9).toFixed(2) + ' SOL';
+                document.getElementById('owner').innerText = data.result.value.owner;
+                document.getElementById('executable').innerText = data.result.value.executable;
+                document.getElementById('slot').innerText = data.result.context.slot;
             })
                 .catch(err => {'Error: ' + err.message });
         
         fetch('/epoch_info')
             .then(res => res.json())
             .then(data => {
-                document.getElementById('epoch_info').innerText = JSON.stringify(data, null, 2)
-            .catch(err => {"Not showing data..."})
-            });
-        
-        fetch('/recent_performance_samples')
-            .then(res => res.json())
-            .then(data => {
-                document.getElementById('performance').innerText = JSON.stringify(data, null, 2)
-            .catch(err => {"Not showing data..."})            
-            });
+                document.getElementById('epoch').innerText = data.result.epoch;
+                document.getElementById('absolute_slot').innerText = data.result.absoluteSlot;
+                document.getElementById('block_height').innerText = data.result.blockHeight;
+                document.getElementById('transaction_count').innerText = data.result.transactionCount.toLocaleString();
+                document.getElementById('slot_index').innerText = data.result.slotIndex;
+                document.getElementById('slots_in_epoch').innerText = data.result.slotsInEpoch;
+                const progress = ((data.result.slotIndex / data.result.slotsInEpoch) * 100).toFixed(1);
+                document.getElementById('epoch_progress').style.width = progress + '%';
+                document.getElementById('epoch_progress').innerText = progress + '%';
+            })
+                .catch(err => {'Error: ' + err.message});
 
-        fetch('/signatures_for_address')
-            .then(res =>res.json())
-            .then(data => {
-                document.getElementById('transaction').innerText = JSON.stringify(data, null, 2)
-            .catch(err => {"Not showing data..."})
-            }); 
+fetch('/recent_performance_samples')
+    .then(res => res.json())
+    .then(data => {
+        const tbody = document.getElementById('performance');
+        tbody.innerHTML = '';
+        data.result.forEach(sample => {
+            const row = `<tr>
+                <td>${sample.slot}</td>
+                <td>${sample.numTransactions}</td>
+                <td>${sample.numNonVoteTransactions}</td>
+                <td>${sample.numSlots}</td>
+                <td>${sample.samplePeriodSecs}</td>
+            </tr>`;
+            tbody.innerHTML += row;
+        });
+    })
+    .catch(err => { document.getElementById('performance').innerHTML = '<tr><td colspan="5">Error: ' + err.message + '</td></tr>'; });
+
+fetch('/signatures_for_address')
+    .then(res => res.json())
+    .then(data => {
+        const tx = data.result;
+        const feed = document.getElementById('tx_feed');
+        const status = tx.meta.err ? 'Failed' : 'Success';
+        const badgeColor = tx.meta.err ? 'danger' : 'success';
+        const time = tx.blockTime ? new Date(tx.blockTime * 1000).toLocaleString() : 'N/A';
+
+        feed.innerHTML = `
+            <div class="card p-3">
+                <div class="d-flex gap-3 align-items-center mb-2">
+                    <span class="badge bg-${badgeColor}">${status}</span>
+                    <span class="text-muted small">Slot ${tx.slot}</span>
+                    <span class="small">${time}</span>
+                </div>
+                <div class="text-muted small">Fee</div>
+                <div class="fw-bold">${tx.meta.fee / 1e9} SOL</div>
+            </div>`;
+    })
+    .catch(err => { document.getElementById('tx_feed').innerText = 'Error: ' + err.message; });
     </script>
 
 </body>
