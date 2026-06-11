@@ -53,3 +53,7 @@ Jillian is a Rust and Solana developer with a background in networking and netwo
 - `tokio` — async runtime
 - `serde` / `serde_json` — JSON serialization and deserialization
 - `dotenv` — loads environment variables from `.env`
+
+## Screenshots 
+![Dashboard Overview](Solana_Dashboard.png)
+![Dashboard Overview](Solana_Dashboard_2.png)
